@@ -13,12 +13,12 @@ Financial institutions face converging cyber and fraud risks, yet defenses remai
 
 ## Documentation
 
-Full project documentation available at: [cs1060f25-epab-project Google Drive](https://drive.google.com/drive/folders/YOUR_FOLDER_ID)
+Full project documentation available at: [cs1060f25-epab-project Google Drive](https://drive.google.com/drive/u/0/folders/1HPHgI0nW2go5IIYanfdKkL4BBDnZNlZu)
 
 ## Links
 
-- [Project Index](https://docs.google.com/document/d/YOUR_DOC_ID)
-- [Product Requirements Document (PRD)](https://drive.google.com/file/d/YOUR_PRD_ID)
+- [Project Index](https://docs.google.com/document/d/1LXfzumkAeM307pnA2ue9x5RQv6t76Up342827AvHd-w/edit?tab=t.0#heading=h.l8gskcho34dj)
+- [Product Requirements Document (PRD)](https://drive.google.com/drive/u/0/folders/1HPHgI0nW2go5IIYanfdKkL4BBDnZNlZu)
 
 ## Course
 
