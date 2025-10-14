@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS12-1 Prototype 5: Static Investigation Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .timeline {
+            grid-column: 1 / -1;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .timeline h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+
+        .timeline-item {
+            display: flex;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-left: 4px solid #e74c3c;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .timeline-item:hover {
+            background: #e9ecef;
+        }
+
+        .timeline-item.suspicious {
+            border-left-color: #f39c12;
+        }
+
+        .timeline-item.normal {
+            border-left-color: #27ae60;
+        }
+
+        .timeline-time {
+            min-width: 100px;
+            font-weight: bold;
+            color: #2c3e50;
+            font-family: monospace;
+        }
+
+        .timeline-content {
+            flex: 1;
+            margin-left: 20px;
+        }
+
+        .timeline-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .timeline-desc {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #e74c3c;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .analysis {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .analysis h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .analysis ul {
+            list-style-position: inside;
+            color: #7f8c8d;
+        }
+
+        .analysis li {
+            margin-bottom: 8px;
+        }
+
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 40px;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 CS12-1 Prototype 5: Static Investigation Dashboard</h1>
+            <p>Incident Timeline & Evidence Assembly - Simple Static Approach</p>
+        </div>
+
+        <div class="dashboard">
+            <div class="card">
+                <h2>📊 Investigation Overview</h2>
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-number">5</span>
+                        <span class="stat-label">Total Events</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">4</span>
+                        <span class="stat-label">Anomalies</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">1</span>
+                        <span class="stat-label">Suspicious</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">85</span>
+                        <span class="stat-label">Risk Score</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🎯 Key Findings</h2>
+                <div class="analysis">
+                    <h3>Critical Alert</h3>
+                    <ul>
+                        <li>Unauthorized access from Moscow, Russia</li>
+                        <li>$50,000 wire transfer initiated</li>
+                        <li>Suspicious PowerShell execution</li>
+                        <li>All events within 30-minute window</li>
+                        <li>Email to temporary domain detected</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline">
+            <h2>🕐 Security Event Timeline - alex.chen</h2>
+            
+            <div class="timeline-item">
+                <div class="timeline-time">08:15:00</div>
+                <div class="timeline-content">
+                    <div class="timeline-title">🔴 New Device Fingerprint (Device)</div>
+                    <div class="timeline-desc">Unknown device fingerprint detected from Moscow, Russia (185.220.101.42)</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">08:17:30</div>
+                <div class="timeline-content">
+                    <div class="timeline-title">🔴 Login Attempt (IdP)</div>
+                    <div class="timeline-desc">Successful login from new geo-location: Moscow, Russia (185.220.101.42)</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">08:22:00</div>
+                <div class="timeline-content">
+                    <div class="timeline-title">🔴 Process Creation (Endpoint)</div>
+                    <div class="timeline-desc">Suspicious PowerShell execution: powershell.exe spawned from winword.exe</div>
+                </div>
+            </div>
+
+            <div class="timeline-item suspicious">
+                <div class="timeline-time">08:25:00</div>
+                <div class="timeline-content">
+                    <div class="timeline-title">🟡 Email Sent (Email)</div>
+                    <div class="timeline-desc">Email sent to external domain: transfer.confirm@temp-mail.ru</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-time">08:30:00</div>
+                <div class="timeline-content">
+                    <div class="timeline-title">🔴 Wire Transfer Initiated (Transaction)</div>
+                    <div class="timeline-desc">High-value transfer: $50,000 to Crypto Exchange Ltd from Moscow IP</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>CS12-1 Prototype 5:</strong> Static HTML Investigation Dashboard</p>
+            <p>Demonstrates simple, fast-loading approach to cybersecurity incident analysis</p>
+        </div>
+    </div>
+
+    <script>
+        // Simple JavaScript for interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to timeline items
+            const timelineItems = document.querySelectorAll('.timeline-item');
+            
+            timelineItems.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateX(10px)';
+                    this.style.transition = 'transform 0.3s ease';
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateX(0)';
+                });
+            });
+
+            // Add click animation to stat items
+            const statItems = document.querySelectorAll('.stat-item');
+            
+            statItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    this.style.transform = 'scale(1.1)';
+                    this.style.transition = 'transform 0.2s ease';
+                    
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 200);
+                });
+            });
+
+            console.log('CS12-1 Prototype 5: Static Investigation Dashboard loaded');
+            console.log('Total events analyzed: 5');
+            console.log('Risk level: HIGH');
+        });
+    </script>
+</body>
+</html>
