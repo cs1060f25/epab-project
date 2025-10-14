@@ -37,12 +37,31 @@ Contains 20+ security events across 5 data sources over 24 hours:
 - `r` - Refresh page
 
 ## Installation & Usage
+
+### Local Development
 ```bash
 npm install
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to view the dashboard.
+
+### Production Build
+```bash
+npm run build
+npm start
+```
+
+### Vercel Deployment
+This project is ready for one-click deployment to Vercel:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/cs1060f25/epab-project/tree/epinkus/cs12-1-prototype-1-power-user-dashboard/prototype-1-power-user)
+
+Or deploy manually:
+1. Fork this repository
+2. Connect your Vercel account to GitHub
+3. Import the `prototype-1-power-user` directory
+4. Deploy automatically
 
 ## What Worked
 - Dense information display suits power users
