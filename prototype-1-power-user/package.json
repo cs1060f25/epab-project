@@ -1,0 +1,17 @@
+{
+  "name": "prototype-1-power-user",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "description": "CS12-1 Prototype 1: Power User Dashboard for Incident Timeline & Evidence Assembly",
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "next": "^15.5.5",
+    "typescript": "^5.9.3",
+    "tailwindcss": "^4.1.14"
+  }
+}
