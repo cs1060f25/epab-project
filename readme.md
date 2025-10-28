@@ -23,3 +23,71 @@ Full project documentation available at: [cs1060f25-epab-project Google Drive](h
 ## Course
 
 CS1060 Fall 2025 - Computer Science for Ethics, Law, and Society
+
+---
+
+# Database MVP - Setup Instructions
+
+Minimal PostgreSQL database setup for cybersecurity and fraud detection platform.
+
+## Quick Setup
+
+### 1. Start Database
+```bash
+docker-compose up -d
+```
+
+### 2. Install Python Dependencies
+```bash
+pip install sqlalchemy psycopg2-binary
+```
+
+### 3. Test Connection
+```bash
+python db.py
+```
+
+## Database Access
+
+- **Host**: localhost:5432
+- **Database**: cyber_fraud_platform  
+- **Username**: admin
+- **Password**: securepass123
+
+## Core Tables
+
+### events
+Security, identity, financial, endpoint, and email events with JSON metadata
+
+### alerts  
+Security alerts with confidence scores and related event references
+
+### audit_log
+System and user action tracking
+
+## Sample Data
+
+The database includes sample data demonstrating a cyber-fraud scenario:
+- Failed login attempts → Successful compromise
+- Identity verification bypass  
+- Suspicious financial transactions
+- Malware detection on endpoint
+- Related security alerts
+
+## Useful Queries
+
+```sql
+-- High-severity events by user
+SELECT user_id, COUNT(*) FROM events 
+WHERE severity IN ('high', 'critical') 
+GROUP BY user_id;
+
+-- Open alerts by confidence
+SELECT title, confidence_score FROM alerts 
+WHERE status = 'open' 
+ORDER BY confidence_score DESC;
+
+-- Recent audit actions
+SELECT user_id, action_type, timestamp FROM audit_log 
+ORDER BY timestamp DESC LIMIT 10;
+```

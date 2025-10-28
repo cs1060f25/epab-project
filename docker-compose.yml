@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: cyber_fraud_db
+    environment:
+      POSTGRES_DB: cyber_fraud_platform
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: securepass123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./seed_data.sql:/docker-entrypoint-initdb.d/02-seed.sql
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
