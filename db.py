@@ -6,7 +6,7 @@ Database connection and ORM models for Cybersecurity & Fraud Detection Platform
 from sqlalchemy import create_engine, Column, String, DateTime, Text, DECIMAL, ARRAY
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.dialects.postgresql import UUID, JSONB, TIMESTAMPTZ
+from sqlalchemy.dialects.postgresql import UUID, JSONB, TIMESTAMP
 from datetime import datetime
 import uuid
 
@@ -25,12 +25,12 @@ class Event(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     event_type = Column(String, nullable=False)
     source_system = Column(String, nullable=False)
-    timestamp = Column(TIMESTAMPTZ, nullable=False)
+    timestamp = Column(TIMESTAMP, nullable=False)
     user_id = Column(String, nullable=True)
     device_id = Column(String, nullable=True)
     event_data = Column(JSONB, nullable=True)
     severity = Column(String, nullable=False)
-    created_at = Column(TIMESTAMPTZ, default=datetime.utcnow)
+    created_at = Column(TIMESTAMP, default=datetime.utcnow)
 
 
 class Alert(Base):
@@ -41,14 +41,14 @@ class Alert(Base):
     status = Column(String, nullable=False)
     confidence_score = Column(DECIMAL(5, 2), nullable=True)
     related_event_ids = Column(ARRAY(String), nullable=True)
-    created_at = Column(TIMESTAMPTZ, default=datetime.utcnow)
+    created_at = Column(TIMESTAMP, default=datetime.utcnow)
 
 
 class AuditLog(Base):
     __tablename__ = "audit_log"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    timestamp = Column(TIMESTAMPTZ, default=datetime.utcnow)
+    timestamp = Column(TIMESTAMP, default=datetime.utcnow)
     user_id = Column(String, nullable=False)
     action_type = Column(String, nullable=False)
     action_details = Column(JSONB, nullable=True)
@@ -73,8 +73,6 @@ def test_connection():
         
         # Test 1: Count events by severity
         print("\n=== Events by Severity ===")
-        events_by_severity = session.query(Event.severity, 
-                                         session.query(Event).filter(Event.severity == Event.severity).count().label('count')).all()
         for severity in ['info', 'low', 'medium', 'high', 'critical']:
             count = session.query(Event).filter(Event.severity == severity).count()
             print(f"{severity.upper()}: {count}")
