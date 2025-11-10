@@ -91,3 +91,8 @@ ORDER BY confidence_score DESC;
 SELECT user_id, action_type, timestamp FROM audit_log 
 ORDER BY timestamp DESC LIMIT 10;
 ```
+
+
+## HW9
+
+Created ticket and branch to create and store a POC RAG system to help us with detection later
