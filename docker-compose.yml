@@ -1,20 +1,34 @@
-version: '3.8'
-
 services:
-  postgres:
-    image: postgres:15
-    container_name: cyber_fraud_db
-    environment:
-      POSTGRES_DB: cyber_fraud_platform
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: securepass123
+  frontend:
+    build:
+      context: ./src/app
+      dockerfile: Dockerfile
+    image: rescam-app
+    container_name: rescam-app
     ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
-      - ./seed_data.sql:/docker-entrypoint-initdb.d/02-seed.sql
-    restart: unless-stopped
+      - "3030:80"
+    depends_on:
+      - api
 
-volumes:
-  postgres_data:
+  api:
+    build:
+      context: ./src/api
+      dockerfile: Dockerfile
+    image: rescam-backend
+    container_name: rescam-backend
+    ports:
+      - "5055:5055"
+    volumes:
+      - ./secrets:/home/app/.config/gcloud:ro
+      - ./src/models:/app/models:ro
+    environment:
+      - PORT=5055
+      - GOOGLE_APPLICATION_CREDENTIALS=/home/app/.config/gcloud/application_default_credentials.json
+      - GCP_PROJECT_ID=articulate-fort-472520-p2
+      - GCS_BUCKET_NAME=rescam-dataset-bucket
+      - PUBSUB_TOPIC_NAME=gmail-notifications
+      - LOG_LEVEL=debug
+      - NODE_ENV=development
+      - DEBUG=*
+    env_file:
+      - ./src/api/.env
