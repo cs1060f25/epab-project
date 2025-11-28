@@ -20,7 +20,28 @@ function Classifications({ userEmail, eventSource }) {
 
                 if (data.type === 'classification_update' && data.email && data.email.emails) {
                     console.log('Received classification update', data.email.emails.length)
-                    setEmails(data.email.emails)
+                    
+                    // Only append the newest classification (first in array)
+                    // The backend sends all emails, but we only want to add the newest one
+                    const allEmails = data.email.emails
+                    if (allEmails.length > 0) {
+                        const newestEmail = allEmails[0] // First email is the newest (added via unshift in backend)
+                        
+                        setEmails(prevEmails => {
+                            // Check if this email already exists in our state
+                            const exists = prevEmails.some(e => e.id === newestEmail.id)
+                            
+                            if (exists) {
+                                // Update existing email if classification changed
+                                return prevEmails.map(e => 
+                                    e.id === newestEmail.id ? newestEmail : e
+                                )
+                            } else {
+                                // Add new email to the beginning of the list
+                                return [newestEmail, ...prevEmails]
+                            }
+                        })
+                    }
                 }
             } catch (error) {
                 console.error('Error parsing SSE message in Classifications:', error)
