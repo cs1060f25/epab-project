@@ -37,14 +37,15 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# CORS configuration
-CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
+# CORS configuration - Fix 1: Ensure proper configuration and ordering
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000,*").split(",")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
 
 
