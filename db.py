@@ -3,7 +3,7 @@
 Database connection and ORM models for Cybersecurity & Fraud Detection Platform
 """
 
-from sqlalchemy import create_engine, Column, String, DateTime, Text, DECIMAL, ARRAY
+from sqlalchemy import create_engine, Column, String, DateTime, Text, DECIMAL, ARRAY, CheckConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.dialects.postgresql import UUID, JSONB, TIMESTAMPTZ
@@ -39,7 +39,7 @@ class Alert(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(String, nullable=False)
     status = Column(String, nullable=False)
-    confidence_score = Column(DECIMAL(5, 2), nullable=True)
+    confidence_score = Column(DECIMAL(5, 2), CheckConstraint('confidence_score >= 0.0 AND confidence_score <= 1.0'), nullable=True)
     related_event_ids = Column(ARRAY(String), nullable=True)
     created_at = Column(TIMESTAMPTZ, default=datetime.utcnow)
 
