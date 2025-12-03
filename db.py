@@ -39,9 +39,13 @@ class Alert(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(String, nullable=False)
     status = Column(String, nullable=False)
-    confidence_score = Column(DECIMAL(5, 2), CheckConstraint('confidence_score >= 0.0 AND confidence_score <= 1.0'), nullable=True)
+    confidence_score = Column(DECIMAL(5, 2), nullable=True)
     related_event_ids = Column(ARRAY(String), nullable=True)
     created_at = Column(TIMESTAMPTZ, default=datetime.utcnow)
+    
+    __table_args__ = (
+        CheckConstraint('confidence_score >= 0.0 AND confidence_score <= 1.0', name='confidence_score_range_check'),
+    )
 
 
 class AuditLog(Base):
