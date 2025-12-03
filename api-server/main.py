@@ -37,19 +37,7 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# CORS configuration - Fix 1: Ensure proper configuration and ordering
-CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000,*").split(",")
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allow_headers=["*"],
-    expose_headers=["*"]
-)
-
-
-# Request logging middleware
+# Request logging middleware 
 @app.middleware("http")
 async def log_requests(request, call_next):
     start_time = datetime.now(timezone.utc)
@@ -62,6 +50,18 @@ async def log_requests(request, call_next):
     )
     return response
 
+
+# CORS configuration - Fix 2: Apply CORS middleware after request logging middleware 
+# This ensures CORS headers are properly set in all responses including preflight
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000,*").split(",")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allow_headers=["*"],
+    expose_headers=["*"]
+)
 
 # Global exception handler
 @app.exception_handler(Exception)
