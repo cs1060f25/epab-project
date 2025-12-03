@@ -3,7 +3,8 @@
 Database connection and ORM models for Cybersecurity & Fraud Detection Platform
 """
 
-from sqlalchemy import create_engine, Column, String, DateTime, Text, DECIMAL, ARRAY
+from sqlalchemy import create_engine, Column, String, DateTime, Text, DECIMAL, ARRAY, CheckConstraint
+from sqlalchemy import event
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.dialects.postgresql import UUID, JSONB, TIMESTAMPTZ
@@ -42,6 +43,43 @@ class Alert(Base):
     confidence_score = Column(DECIMAL(5, 2), nullable=True)
     related_event_ids = Column(ARRAY(String), nullable=True)
     created_at = Column(TIMESTAMPTZ, default=datetime.utcnow)
+    
+    __table_args__ = (
+        CheckConstraint('confidence_score IS NULL OR (confidence_score >= 0.0 AND confidence_score <= 1.0)', name='confidence_score_range_check'),
+    )
+    
+    def __init__(self, **kwargs):
+        # Validate confidence_score before creating the instance
+        confidence_score = kwargs.get('confidence_score')
+        if confidence_score is not None:
+            self._validate_confidence_score(confidence_score)
+        super().__init__(**kwargs)
+    
+    @staticmethod
+    def _validate_confidence_score(value):
+        """Validate confidence_score value"""
+        if value is not None:
+            if not isinstance(value, (int, float)):
+                raise ValueError("confidence_score must be a number")
+            if value < 0.0 or value > 1.0:
+                raise ValueError(f"confidence_score must be between 0.0 and 1.0, got {value}")
+    
+    def validate(self):
+        """Validate all fields in the Alert instance"""
+        self._validate_confidence_score(self.confidence_score)
+        if not self.title or not self.title.strip():
+            raise ValueError("title cannot be empty")
+        if not self.status or not self.status.strip():
+            raise ValueError("status cannot be empty")
+
+
+# Event listeners for automatic validation
+@event.listens_for(Alert.confidence_score, 'set')
+def validate_confidence_score_on_set(target, value, oldvalue, initiator):
+    """Automatically validate confidence_score whenever it's set"""
+    if value is not None:
+        Alert._validate_confidence_score(value)
+    return value
 
 
 class AuditLog(Base):
