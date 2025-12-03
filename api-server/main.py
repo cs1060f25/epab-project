@@ -51,16 +51,17 @@ async def log_requests(request, call_next):
     return response
 
 
-# CORS configuration - Fix 2: Apply CORS middleware after request logging middleware 
-# This ensures CORS headers are properly set in all responses including preflight
-CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000,*").split(",")
+# CORS configuration - Fix 3: Comprehensive CORS configuration with explicit handling
+# Using wildcard for origins in development, specific headers configuration
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allow_origins=["*"],  # Allow all origins for now to debug
+    allow_credentials=False,  # Set to False when using wildcard origins
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"],
     allow_headers=["*"],
-    expose_headers=["*"]
+    expose_headers=["*"],
+    max_age=3600  # Cache preflight responses for 1 hour
 )
 
 # Global exception handler
@@ -82,6 +83,26 @@ async def startup_event():
         raise Exception("Database connection failed")
     logger.info("Application started successfully")
 
+
+# Explicit OPTIONS handlers for main endpoints - Fix 3 continuation
+@app.options("/api/events")
+@app.options("/api/alerts")
+@app.options("/api/alerts/{alert_id}/events")
+@app.options("/api/health")
+async def options_handler():
+    """
+    Explicit OPTIONS handler for all API endpoints
+    This ensures proper CORS preflight handling
+    """
+    return JSONResponse(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD",
+            "Access-Control-Allow-Headers": "*",
+            "Access-Control-Max-Age": "3600"
+        }
+    )
 
 # Health check endpoint
 @app.get("/api/health", response_model=HealthResponse)
