@@ -44,8 +44,18 @@ class Alert(Base):
     created_at = Column(TIMESTAMPTZ, default=datetime.utcnow)
     
     __table_args__ = (
-        CheckConstraint('confidence_score >= 0.0 AND confidence_score <= 1.0', name='confidence_score_range_check'),
+        CheckConstraint('confidence_score IS NULL OR (confidence_score >= 0.0 AND confidence_score <= 1.0)', name='confidence_score_range_check'),
     )
+    
+    def __init__(self, **kwargs):
+        # Validate confidence_score before creating the instance
+        confidence_score = kwargs.get('confidence_score')
+        if confidence_score is not None:
+            if not isinstance(confidence_score, (int, float)):
+                raise ValueError("confidence_score must be a number")
+            if confidence_score < 0.0 or confidence_score > 1.0:
+                raise ValueError(f"confidence_score must be between 0.0 and 1.0, got {confidence_score}")
+        super().__init__(**kwargs)
 
 
 class AuditLog(Base):
