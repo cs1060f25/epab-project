@@ -11,6 +11,6 @@ RUN mkdir -p /home/app/.config/gcloud
 # The GOOGLE_APPLICATION_CREDENTIALS environment variable points to the mounted file
 # Note: model_rag.py expects Python dependencies - these should be installed
 # For MVP, you may need to install them here or mount a Python container
-EXPOSE 5055
+EXPOSE 5050
 CMD ["npm", "start"]
 

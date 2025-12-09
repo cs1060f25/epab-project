@@ -1,46 +1,111 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import ClassificationItem from './ClassificationItem'
+import { getStoredToken } from '../auth/googleAuth'
 
 function Classifications({ userEmail, eventSource }) {
     const [emails, setEmails] = useState([])
     const [isExpanded, setIsExpanded] = useState(true)
+    const seenEmailIdsRef = useRef(new Set())
+    const [loading, setLoading] = useState(true)
 
     // DEBUG: Print current state
-    console.log('Rendering Classifications, emails count:', emails.length)
+    // console.log('Rendering Classifications, emails count:', emails.length)
 
+    // Fetch initial email classifications on mount
+    useEffect(() => {
+        const fetchInitialEmails = async () => {
+            console.log('[Classifications] fetchInitialEmails called, userEmail:', userEmail)
+
+            if (!userEmail) {
+                console.log('[Classifications] No userEmail, skipping fetch')
+                setLoading(false)
+                return
+            }
+
+            try {
+                setLoading(true)
+                const token = getStoredToken()
+                console.log('[Classifications] Got token:', token ? 'exists' : 'null')
+
+                if (!token) {
+                    console.error('[Classifications] No token found in localStorage')
+                    setLoading(false)
+                    return
+                }
+
+                console.log('[Classifications] Fetching from /api/emails...')
+                const response = await fetch('/api/emails', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+
+                console.log('[Classifications] Response status:', response.status)
+
+                if (!response.ok) {
+                    const errorText = await response.text()
+                    console.error('[Classifications] Error response:', errorText)
+                    throw new Error(`HTTP error! status: ${response.status}`)
+                }
+
+                const data = await response.json()
+                console.log('[Classifications] Received data:', data)
+
+                if (data.emails && Array.isArray(data.emails)) {
+                    // Set initial emails (newest first, as they come from GCS)
+                    setEmails(data.emails)
+
+                    // Populate seenEmailIds to prevent duplicates from SSE
+                    data.emails.forEach(email => {
+                        seenEmailIdsRef.current.add(email.id)
+                    })
+
+                    console.log(`[Classifications] Loaded ${data.emails.length} initial classifications`)
+                } else {
+                    console.log('[Classifications] No emails in response or invalid format')
+                }
+            } catch (error) {
+                console.error('[Classifications] Error fetching initial emails:', error)
+                // Don't block UI, just log the error
+                // SSE updates will still work
+            } finally {
+                setLoading(false)
+                console.log('[Classifications] Loading complete')
+            }
+        }
+
+        fetchInitialEmails()
+    }, [userEmail])
+
+    // Listen to SSE messages for new classification updates
     useEffect(() => {
         if (!eventSource) return
 
         const handleMessage = (event) => {
             try {
                 // DEBUG: Print raw event data
-                console.log('Received raw SSE event:', event)
+                // console.log('Received SSE message in Classifications:', event.data)
                 const data = JSON.parse(event.data)
-                console.log('Parsed SSE data:', data)
+                // console.log('Parsed SSE data:', data)
+                // console.log('Current seenEmailIds:', Array.from(seenEmailIdsRef.current))
 
                 if (data.type === 'classification_update' && data.email && data.email.emails) {
-                    console.log('Received classification update', data.email.emails.length)
-                    
-                    // Only append the newest classification (first in array)
-                    // The backend sends all emails, but we only want to add the newest one
-                    const allEmails = data.email.emails
-                    if (allEmails.length > 0) {
-                        const newestEmail = allEmails[0] // First email is the newest (added via unshift in backend)
-                        
-                        setEmails(prevEmails => {
-                            // Check if this email already exists in our state
-                            const exists = prevEmails.some(e => e.id === newestEmail.id)
-                            
-                            if (exists) {
-                                // Update existing email if classification changed
-                                return prevEmails.map(e => 
-                                    e.id === newestEmail.id ? newestEmail : e
-                                )
-                            } else {
-                                // Add new email to the beginning of the list
-                                return [newestEmail, ...prevEmails]
-                            }
-                        })
+                    const incomingEmails = data.email.emails
+                    // console.log('Received classification update', incomingEmails.length)
+
+                    // Filter out emails we've already seen (using ref.current)
+                    const newEmails = incomingEmails.filter(email => !seenEmailIdsRef.current.has(email.id))
+
+                    if (newEmails.length > 0) {
+                        // Update the ref's Set directly (no state update needed)
+                        newEmails.forEach(email => seenEmailIdsRef.current.add(email.id))
+
+                        // Prepend new emails to the top of the list
+                        setEmails(prev => [...newEmails, ...prev])
+
+                        // console.log(`Added ${newEmails.length} new classification(s)`)
+                    } else {
+                        console.log('No new emails to add (all already seen)')
                     }
                 }
             } catch (error) {
@@ -130,7 +195,24 @@ function Classifications({ userEmail, eventSource }) {
                     flexDirection: 'column',
                     gap: 'var(--spacing-md)'
                 }}>
-                    {emails.length === 0 ? (
+                    {loading ? (
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: 'var(--spacing-2xl)',
+                            color: 'var(--color-text-secondary)',
+                            textAlign: 'center'
+                        }}>
+                            <div style={{
+                                fontSize: 'var(--font-size-sm)',
+                                fontWeight: 'var(--font-weight-medium)'
+                            }}>
+                                Loading classifications...
+                            </div>
+                        </div>
+                    ) : emails.length === 0 ? (
                         <div style={{
                             display: 'flex',
                             flexDirection: 'column',
